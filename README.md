@@ -1,2 +1,2 @@
 # ikea
-ikea stock/restock/alerts
+ikea stock/restock lookup and alerts
