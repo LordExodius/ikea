@@ -1,2 +1,2 @@
 # ikea
-ikea stock tracker with restock pings
+ikea stock/restock/alerts
