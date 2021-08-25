@@ -24,3 +24,9 @@ I'm still figuring out how to compile store names by store number outside of Can
 Location takes one or more arguments in a string, separated by commas. Example: ```stockTrack(item, country, "149, 035, 356")```
 
 When a ```location``` argument is provided, a popup will appear if the specified item is available at any of the stores specified. This popup will also say if the item is available online for click-and-collect.
+
+***AUTOMATION***
+  
+In order to actually have this thing work properly, you must automate the program execution in some way or another.
+  
+I suggest using Windows Task Scheduler to simply run ```shelf.py``` once every hour or maybe even once per day. This means the program isn't always running all the time hogging resources (however little that may be) and also can auto start when you turn your computer on.
