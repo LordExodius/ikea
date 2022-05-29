@@ -20,7 +20,7 @@ Currently, only ```ca``` and ```us``` (case insensitive) are available, but I'll
   
 ```location``` refers to the 3-digit store ID of any store in the country. This can be multiple arguments, comma separated.
 
-**Examples**: 
+### Examples 
 
 ```stockTrack("https://www.ikea.com/ca/en/p/malm-bed-frame-high-black-brown-luroey-s69009475/", "ca", "256, 372, 149")```
 
@@ -28,7 +28,7 @@ Currently, only ```ca``` and ```us``` (case insensitive) are available, but I'll
 
 A list of available codes will be provided shortly.
 
-***AUTOMATION***
+## AUTOMATION
   
 In order to actually have this work properly, you must automate the program execution in some way or another.
   
