@@ -6,7 +6,7 @@ The web implementation functionality is provided by ```shelf.py```, which can be
 # ALERTS
 The following instructions are only for if you wish to set up notifications for when an item restocks. Also, only works for Windows (for now).
 
-Download ```notifier.py``` and ```data.db``` from the root directory.
+Download ```notifier.py``` and ```data.db```.
 
 Navigate to the bottom of ```notifier.py``` and replace the default arguments for stockTrack().
 
