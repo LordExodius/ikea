@@ -1,31 +1,36 @@
-# i just want a goddamn alex drawer please for the love of god
-# july 20th 2021
-# oscar yu
+# IKEA TRACKER
+# May 28th, 2022
 
 import requests
 import json
-import ctypes
+import re
+import sqlite3
+from pathlib import Path
 from table import table
 
-caStores = {
-    "149" : "North York",
-    "372" : "Vaughan",
-    "256" : "Etobicoke",
-    "040" : "Burlington",
-    "004" : "Ottawa",
-    "039" : "Montreal",
-    "414" : "Boucherville",
-    "559" : "Quebec City",
-    "529" : "Halifax",
-    "249" : "Winnepeg",
-    "349" : "Edmonton",
-    "216" : "Calgary",
-    "313" : "Coquitlam",
-    "003" : "Richmond"
-}
+rootPath = str(Path(__file__).resolve()).replace("\\","/").rsplit("/", 1)[0]
 
-def stockTrack(item : str, country = "ca", location = None) ->  None:
-    item = item.replace(".", "")
+def stockTrack(item : str, country : str) ->  None:
+    """Prints a table with the inventory status of the requested Ikea item."""
+
+    country = country.lower() # normalize country code
+
+    # import country codes and locations
+    query = "SELECT id, name FROM locations WHERE country=?"
+    con = sqlite3.connect(rootPath+'/data.db')
+    cur = con.cursor()
+    cur.execute(query, (country,))
+    rows = cur.fetchall()
+    storeCodes = {}
+    for row in rows:
+        storeCodes[row[0]] = row[1]
+
+    # if item is not a sku code, clean .'s and parse from url
+    if len(item) > 8:
+        item = item.replace(".", "")
+        idPattern = re.compile(r"[0-9]{8}")
+        item = re.findall(idPattern, item)[0]
+    
     url = f"https://api.ingka.ikea.com/cia/availabilities/ru/{country}?itemNos={item}&expand=StoresList,Restocks,SalesLocations"
     headers = {
         "authority": "api.ingka.ikea.com",
@@ -47,85 +52,58 @@ def stockTrack(item : str, country = "ca", location = None) ->  None:
     response = requests.get(url, headers=headers)
     data = json.loads(response.content)
 
-    if location:
-        location = location.replace(" ", "").split(",")
-
-    dataTable = [["Store", "StoreID", "Quantity", "Online", "Restock", "Early Restock", "Late Restock"]]
-    rowNum = 0
-
-    #file = open("data.json", "w", encoding="utf-8")
-    #json.dump(data, file, ensure_ascii=False, indent=4)
-    #print(json.dumps(data, sort_keys=True, indent=4))
+    dataTable = [["Store Location", "StoreID", "Quantity", "Online", "Restock", "Early Restock", "Late Restock"]]
 
     availabilities = data["availabilities"]
     for store in availabilities:
-        #TABLE
-        storeInfo = []
-        rowNum += 1
+        storeInfo = [] # Table
 
         # Identify store
         storeCode = store["classUnitKey"]["classUnitCode"]
 
-        # If store location is specified, only scan data for that store location
-        if location and not storeCode in location:
+        # If store is unknown, skip
+        if not storeCode in storeCodes:
             continue
 
-        if storeCode in caStores:
-            storeName = caStores[storeCode]
+        storeName = storeCodes[storeCode]
+        carrying = store["buyingOption"]["cashCarry"]
 
-            print(f"STORE: {storeName}")
-            carrying = store["buyingOption"]["cashCarry"]
+        if not "availability" in carrying:
+            continue
 
-            if not "availability" in carrying:
-                continue
+        # Identify current availability
+        availStats = carrying["availability"]
+        quantAvail = availStats["quantity"]
+        availOnline = store["availableForClickCollect"]
 
-            # Identify current availability
-            availStats = carrying["availability"]
-            quantAvail = availStats["quantity"]
-            availOnline = store["availableForClickCollect"]
+        #TABLE
+        storeInfo.append(storeName)
+        storeInfo.append(storeCode)
+        storeInfo.append(quantAvail)
+        storeInfo.append(availOnline)
 
-            # If tracking specifict location
-            if location and quantAvail > 0 and {availOnline}:
-                    ctypes.windll.user32.MessageBoxW(0, f"Item {item} is in stock at {storeName}\nAvailable Online: {availOnline}", "Ikea Tracker", 0)
+        # Identify restock quantity and dates if restock data exists
+        if "restocks" in availStats:
+            restock = availStats["restocks"][0]
+            quantRestock = restock["quantity"]
+            restockEarly = restock["earliestDate"]
+            restockLate = restock["latestDate"]
 
             #TABLE
-            storeInfo.append(storeName)
-            storeInfo.append(storeCode)
-            storeInfo.append(quantAvail)
-            storeInfo.append(availOnline)
-
-            # Identify restock quantity and dates if restock data exists
-            if "restocks" in availStats:
-                restock = availStats["restocks"][0]
-                quantRestock = restock["quantity"]
-                restockEarly = restock["earliestDate"]
-                restockLate = restock["latestDate"]
-
-                #TABLE
-                storeInfo.append(quantRestock)
-                storeInfo.append(restockEarly)
-                storeInfo.append(restockLate)
-            
-            #TABLE
-            else:
-                storeInfo.append("N/A")
-                storeInfo.append("N/A")
-                storeInfo.append("N/A")
-            
-            #TABLE
-            dataTable.append(storeInfo)
-
-        # Unknown store
+            storeInfo.append(quantRestock)
+            storeInfo.append(restockEarly)
+            storeInfo.append(restockLate)
+        
+        #TABLE
         else:
-            pass
+            storeInfo.append("N/A")
+            storeInfo.append("N/A")
+            storeInfo.append("N/A")
+        
+        #TABLE
+        dataTable.append(storeInfo)
 
     storeTable = table(dataTable)
     print(storeTable)
-    if location is None:
-        input()
 
-alex_code = "60473548"
-country_code = "ca"
-
-stockTrack("702.179.73", country_code, "149, 372, 256")
-stockTrack("902.179.72", country_code, "149, 372, 256")
+stockTrack("60473548", "us")
