@@ -1,5 +1,5 @@
 # ikea
-Small application for Ikea stock/restock lookup and alerts. A web version is available at https://extremelycorporate.ca/~oscar/ikea/ and is much more convenient if you don't need alerts.
+Small application for Ikea stock/restock lookup and alerts. A web version is available at https://extremelycorporate.ca/~oscar/ikea/ and is much more convenient if you don't need alerts. (currently under maintenance)
 
 The web implementation functionality is provided by ```shelf.py```, which can be run locally. It does not take command line inputs and the function must be called with the correct arguments to fuction correctly.
 
