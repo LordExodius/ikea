@@ -1,7 +1,7 @@
 # ikea
 Small application for Ikea stock/restock lookup and alerts. A web version is available at https://extremelycorporate.ca/~oscar/ikea/ and is much more convenient if you don't need alerts.
 
-The web implementation functionality is provided by scripts in `/webVer`.
+The web implementation is provided by scripts in `/webVer`.
 
 # ALERTS
 The following instructions are only for if you wish to set up notifications for when an item restocks. Also, only works for Windows (for now).
